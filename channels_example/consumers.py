@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from channels.handler import AsgiHandler
+from channels import Group
 
 def http_consumer(message):
     # Make standard HTTP response - access ASGI path attribute directly
@@ -9,8 +10,17 @@ def http_consumer(message):
         message.reply_channel.send(chunk)
 
 def ws_message(message):
-    # ASGI WebSocket packet-received and send-packet message types
-    # both have a "text" key for their textual data.
-    message.reply_channel.send({
-        "text": message.content['text'],
+    Group("chat").send({
+        "text": "[user] %s" % message.content['text'],
     })
+
+# Connected to websocket.connect
+def ws_add(message):
+    # Accept the incoming connection
+    message.reply_channel.send({"accept": True})
+    # Add them to the chat group
+    Group("chat").add(message.reply_channel)
+
+# Connected to websocket.disconnect
+def ws_disconnect(message):
+    Group("chat").discard(message.reply_channel)
