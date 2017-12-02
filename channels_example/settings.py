@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
+    'channels_example',
 ]
 
 MIDDLEWARE = [
@@ -81,9 +82,19 @@ DATABASES = {
     }
 }
 
+#CHANNEL_LAYERS = {
+#    "default": {
+#        "BACKEND": "asgiref.inmemory.ChannelLayer",
+#        "ROUTING": "channels_example.routing.channel_routing",
+#    },
+#}
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
         "ROUTING": "channels_example.routing.channel_routing",
     },
 }
